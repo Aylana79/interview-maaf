@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interview stage MAAF</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Consolas, monospace;
+      background-color: #1e1e1e;
+      color: #dcdcdc;
+    }
+    .header {
+      background-color: #007acc;
+      padding: 4px 10px;
+      color: white;
+      font-size: 14px;
+    }
+    .container {
+      display: flex;
+      height: calc(100vh - 90px);
+    }
+    .explorer {
+      width: 250px;
+      background-color: #2d2d30;
+      padding: 10px;
+      border-right: 1px solid #444;
+      overflow-y: auto;
+    }
+    .explorer h3 {
+      font-size: 14px;
+      color: #ccc;
+      margin-top: 0;
+    }
+    .query-item {
+      cursor: pointer;
+      color: #9cdcfe;
+      margin: 4px 0;
+    }
+    .query-item:hover {
+      text-decoration: underline;
+    }
+    .editor-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .editor {
+      flex: 1;
+      padding: 20px;
+      background-color: #1e1e1e;
+      color: #dcdcdc;
+      white-space: pre-wrap;
+      overflow-y: auto;
+    }
+    .terminal {
+      background-color: #252526;
+      color: #dcdcdc;
+      padding: 10px;
+      font-size: 14px;
+      height: 120px;
+      overflow-y: auto;
+      border-top: 1px solid #444;
+    }
+    .execute-btn {
+      background-color: #0e639c;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      margin: 10px;
+      cursor: pointer;
+      align-self: flex-start;
+    }
+    .execute-btn:hover {
+      background-color: #1177bb;
+    }
+    .keyword { color: #569cd6; }
+    .string { color: #ce9178; }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #555;
+      padding: 4px 8px;
+    }
+    th {
+      background-color: #3a3d41;
+      color: #dcdcdc;
+    }
+    td {
+      background-color: #1e1e1e;
+      color: #dcdcdc;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">SQLQuery1.sql - Interview MAAF</div>
+  <div class="container">
+    <div class="explorer">
+      <h3>Object Explorer</h3>
+      <div class="query-item" onclick="loadQuery(1)">Question 1</div>
+      <div class="query-item" onclick="loadQuery(2)">Question 2</div>
+      <div class="query-item" onclick="loadQuery(3)">Question 3</div>
+      <div class="query-item" onclick="loadQuery(4)">Question 4</div>
+      <div class="query-item" onclick="loadQuery(5)">Question 5</div>
+      <div class="query-item" onclick="loadQuery(6)">Question 6</div>
+      <div class="query-item" onclick="loadQuery(7)">Question 7</div>
+    </div>
+    <div class="editor-container">
+      <button class="execute-btn" onclick="executeQuery()">Exécuter</button>
+      <div class="editor" id="editor">
+        -- Cliquez sur une requête pour afficher le contenu ici.
+      </div>
+      <div class="terminal" id="terminal">
+        -- Le résultat de la requête s'affichera ici --
+      </div>
+    </div>
+  </div>
+  <script>
+    const queries = [
+      {
+        question: "Pouvez-vous me décrire votre rôle en tant que Chargé d'études, gestion et pilotage ?",
+        answer: "Mon rôle consiste principalement à gérer les données utilisées dans les algorithmes de tarification, afin de les faire évoluer et de les mettre à jour chaque année. Je suis également en charge du suivi et de l'amélioration continue des outils et applications utilisés par la MAAF."
+      },
+      {
+        question: "Quelles sont vos principales missions au quotidien ?",
+        answer: "L'évolution tarifaire représente une part importante de mon activité, notamment avec la mise à jour des données et la réalisation de simulations pour vérifier les impacts attendus. Je développe aussi des outils pour faciliter ces simulations et automatiser les mises à jour de données."
+      },
+      {
+        question: "Quelles sont les données que vous analysez le plus fréquemment ?",
+        answer: "Je travaille principalement sur les cotisations des clients, ainsi que sur les critères qui permettent de les calculer."
+      },
+      {
+        question: "Quels outils utilisez-vous dans le cadre de vos analyses ?",
+        answer: "J'utilise surtout SQL Server. Il reste encore un peu d'Access, mais l'objectif est de tout migrer vers SQL Server. J'utilise également Visual Studio pour orchestrer les traitements, ainsi que JavaScript avec un langage spécifique au groupe Covéa pour certains produits."
+      },
+      {
+        question: "Comment la migration d'Access vers SQL impacte-t-elle votre travail ou celui de votre équipe ?",
+        answer: "C'est une évolution positive : SQL Server offre de meilleures performances, permet une automatisation plus efficace et favorise une harmonisation globale des processus."
+      },
+      {
+        question: "Avec quels autres services travaillez-vous régulièrement ?",
+        answer: "Je collabore principalement avec l'équipe TSP (Tarification Statistique Produits), mais aussi beaucoup avec les équipes informatiques, auxquelles nous transmettons les simulations. Elles les intègrent ensuite dans les applications web utilisées par les clients pour effectuer des simulations tarifaires."
+      },
+      {
+        question: "Quels conseils donneriez-vous à un étudiant ou un jeune professionnel qui souhaiterait évoluer vers ce type de poste ?",
+        answer: "Je leur conseillerais de se lancer dans de petits projets liés à la donnée, comme créer une base de données pour gérer des repas à la maison, par exemple. Il est également important d’expérimenter différents postes ou missions en lien avec la gestion de données pour progressivement évoluer vers ce type de métier."
+      }
+    ];
+
+    let currentQueryIndex = null;
+
+    function loadQuery(id) {
+      currentQueryIndex = id - 1;
+      const q = queries[currentQueryIndex];
+      document.getElementById("editor").innerHTML = `
+<span class="keyword">SELECT</span> Question, Réponse
+<span class="keyword">FROM</span> Interview
+<span class="keyword">WHERE</span> Question = <span class="string">'${q.question}'</span>;`;
+      document.getElementById("terminal").innerHTML = "-- Le résultat de la requête s'affichera ici --";
+    }
+
+    function executeQuery() {
+      if (currentQueryIndex !== null) {
+        const q = queries[currentQueryIndex];
+        document.getElementById("terminal").innerHTML = `
+          <table>
+            <thead>
+              <tr><th>Question</th><th>Réponse</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>${q.question}</td><td>${q.answer}</td></tr>
+            </tbody>
+          </table>
+        `;
+      } else {
+        document.getElementById("terminal").innerText = "Aucune requête sélectionnée.";
+      }
+    }
+  </script>
+</body>
+</html>
